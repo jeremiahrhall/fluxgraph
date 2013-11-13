@@ -39,9 +39,9 @@ public class FluxUtil {
     }
 
     // Retrieve the original name of a property
-    public static String getPropertyName(final Keyword property) {
-        if (property.toString().contains(".")) {
-            return property.toString().substring(1, property.toString().indexOf(".")).replace("$","_");
+    public static String getPropertyName(final String property) {
+        if (property.contains(".")) {
+            return property.substring(1, property.indexOf(".")).replace("$","_");
         }
         return null;
     }
@@ -98,7 +98,7 @@ public class FluxUtil {
             } catch (InterruptedException e) {
                 throw new RuntimeException(FluxGraph.DATOMIC_ERROR_EXCEPTION_MESSAGE);
             } catch (ExecutionException e) {
-                throw new RuntimeException(FluxGraph.DATOMIC_ERROR_EXCEPTION_MESSAGE);
+                    throw new RuntimeException(FluxGraph.DATOMIC_ERROR_EXCEPTION_MESSAGE);
             }
         }
     }
@@ -142,7 +142,7 @@ public class FluxUtil {
         for(List<Object> indexedAttribute : indexedAttributes) {
             String elementClazzName = elementClazz.getSimpleName();
             if (indexedAttribute.get(0).toString().endsWith("." + elementClazzName.toLowerCase())) {
-                results.add(getPropertyName((Keyword)indexedAttribute.get(0)));
+                results.add(getPropertyName((String) indexedAttribute.get(0)));
             }
         }
         return results;

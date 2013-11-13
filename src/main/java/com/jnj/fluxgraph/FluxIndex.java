@@ -57,7 +57,7 @@ public class FluxIndex<T extends Element> implements Index<T> {
         throw new UnsupportedOperationException();
     }
 
-    public CloseableIterable<T> get(final String key, final Object value) {
+    public CloseableIterable get(final String key, final Object value) {
         boolean matched = ((indexKeys == null) || ((indexKeys != null) && indexKeys.contains(key)));
         Keyword attribute = null;
         if ((this.getIndexClass().isAssignableFrom(FluxEdge.class)) && ("label".equals(key))) {
@@ -68,19 +68,19 @@ public class FluxIndex<T extends Element> implements Index<T> {
         }
         if (matched && FluxUtil.existingAttributeDefinition(attribute, graph)) {
             if (this.getIndexClass().isAssignableFrom(FluxVertex.class)) {
-                return new FluxIterable(getElements(attribute, value, Keyword.intern("graph.element.type/vertex"), getDatabase()), graph, database, Vertex.class);
+                return new FluxIterable<Vertex>(getElements(attribute, value, Keyword.intern("graph.element.type/vertex"), getDatabase()), graph, database, Vertex.class);
             }
             if (this.getIndexClass().isAssignableFrom(FluxEdge.class)) {
-                return new FluxIterable(getElements(attribute, value, Keyword.intern("graph.element.type/edge"), getDatabase()), graph, database, Edge.class);
+                return new FluxIterable<Edge>(getElements(attribute, value, Keyword.intern("graph.element.type/edge"), getDatabase()), graph, database, Edge.class);
             }
             throw new RuntimeException(FluxGraph.DATOMIC_ERROR_EXCEPTION_MESSAGE);
         }
         else {
             if (this.getIndexClass().isAssignableFrom(FluxVertex.class)) {
-                return new FluxIterable(new ArrayList<List<Object>>(), graph, database, Vertex.class);
+                return new FluxIterable<Vertex>(new ArrayList<List<Object>>(), graph, database, Vertex.class);
             }
             if (this.getIndexClass().isAssignableFrom(FluxEdge.class)) {
-                return new FluxIterable(new ArrayList<List<Object>>(), graph, database, Edge.class);
+                return new FluxIterable<Edge>(new ArrayList<List<Object>>(), graph, database, Edge.class);
             }
             throw new RuntimeException(FluxGraph.DATOMIC_ERROR_EXCEPTION_MESSAGE);
         }

@@ -1,6 +1,7 @@
 package com.jnj.fluxgraph;
 
 import com.tinkerpop.blueprints.*;
+import com.tinkerpop.blueprints.util.DefaultGraphQuery;
 import com.tinkerpop.blueprints.util.ExceptionFactory;
 import com.tinkerpop.blueprints.util.StringFactory;
 import datomic.*;
@@ -51,7 +52,6 @@ public class FluxGraph implements MetaGraph<Database>, KeyIndexableGraph, TimeAw
         FEATURES.supportsDuplicateEdges = true;
         FEATURES.supportsSelfLoops = true;
         FEATURES.isPersistent = false;
-        FEATURES.isRDFModel = false;
         FEATURES.supportsVertexIteration = true;
         FEATURES.supportsEdgeIteration = true;
         FEATURES.supportsVertexIndex = false;
@@ -289,8 +289,14 @@ public class FluxGraph implements MetaGraph<Database>, KeyIndexableGraph, TimeAw
         FluxUtil.removeAttributeIndex(key, elementClass, this);
     }
 
+    /**
+     * @param key             the key to create the index for
+            * @param elementClass    the element class that the index is for
+            * @param indexParameters a collection of parameters for the underlying index implementation
+    * @param <T>             the element class specification
+    */
     @Override
-    public <T extends Element> void createKeyIndex(String key, Class<T> elementClass) {
+    public <T extends Element> void createKeyIndex(String key, Class<T> elementClass, final Parameter... indexParameters) {
         FluxUtil.createAttributeIndex(key, elementClass, this);
     }
 
@@ -485,4 +491,8 @@ public class FluxGraph implements MetaGraph<Database>, KeyIndexableGraph, TimeAw
         tx.get().clear();
     }
 
+    @Override
+    public GraphQuery query() {
+        return new DefaultGraphQuery(this);
+    }
 }

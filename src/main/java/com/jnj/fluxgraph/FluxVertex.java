@@ -2,9 +2,13 @@ package com.jnj.fluxgraph;
 
 import com.tinkerpop.blueprints.*;
 import com.tinkerpop.blueprints.util.DefaultQuery;
+import com.tinkerpop.blueprints.util.DefaultVertexQuery;
 import com.tinkerpop.blueprints.util.MultiIterable;
 import com.tinkerpop.blueprints.util.StringFactory;
-import datomic.*;
+import datomic.Database;
+import datomic.Datom;
+import datomic.Peer;
+import datomic.Util;
 
 import java.util.*;
 
@@ -16,8 +20,8 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
     protected FluxVertex(final FluxGraph fluxGraph, final Database database) {
         super(fluxGraph, database);
         fluxGraph.addToTransaction(Util.map(":db/id", id,
-                                              ":graph.element/type", ":graph.element.type/vertex",
-                                              ":db/ident", uuid));
+                ":graph.element/type", ":graph.element.type/vertex",
+                ":db/ident", uuid));
     }
 
     public FluxVertex(final FluxGraph fluxGraph, final Database database, final Object id) {
@@ -45,8 +49,7 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
             // If no next version exists, the version of the edge is the current version (timescope with a null database)
             if (FluxUtil.getNextTransactionId(fluxGraph, nextVertexVersion) == null) {
                 return new FluxVertex(fluxGraph, null, id);
-            }
-            else {
+            } else {
                 return nextVertexVersion;
             }
         }
@@ -92,16 +95,15 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
             while (edgesit.hasNext()) {
                 vertices.add(edgesit.next().getVertex(Direction.IN).getId());
             }
-            return new FluxIterable(vertices, fluxGraph, database, Vertex.class);
+            return new FluxIterable<Vertex>(vertices, fluxGraph, database, Vertex.class);
         } else if (direction.equals(Direction.IN)) {
             Iterator<Edge> edgesit = this.getInEdges(labels).iterator();
             List<Object> vertices = new ArrayList<Object>();
             while (edgesit.hasNext()) {
                 vertices.add(edgesit.next().getVertex(Direction.OUT).getId());
             }
-            return new FluxIterable(vertices, fluxGraph, database, Vertex.class);
-        }
-        else {
+            return new FluxIterable<Vertex>(vertices, fluxGraph, database, Vertex.class);
+        } else {
             Iterator<Edge> outEdgesIt = this.getOutEdges(labels).iterator();
             List<Object> outvertices = new ArrayList<Object>();
             while (outEdgesIt.hasNext()) {
@@ -112,7 +114,12 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
             while (inEdgesIt.hasNext()) {
                 invertices.add(inEdgesIt.next().getVertex(Direction.OUT).getId());
             }
-            return new MultiIterable<Vertex>(Arrays.<Iterable<Vertex>>asList(new FluxIterable(outvertices, fluxGraph, database, Vertex.class), new FluxIterable(invertices, fluxGraph, database, Vertex.class)));
+            return new MultiIterable<Vertex>(
+                    Arrays.<Iterable<Vertex>>asList(
+                            new FluxIterable<Vertex>(outvertices, fluxGraph, database, Vertex.class),
+                            new FluxIterable<Vertex>(invertices, fluxGraph, database, Vertex.class)
+                    )
+            );
         }
     }
 
@@ -122,8 +129,18 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
     }
 
     @Override
-    public Query query() {
-        return new DefaultQuery(this);
+    public VertexQuery query() {
+        return new DefaultVertexQuery(this);
+    }
+
+    @Override
+    public Edge addEdge(String label, Vertex inVertex) {
+        return fluxGraph.addEdge(id, this, inVertex, label);
+    }
+
+    @Override
+    public void remove() {
+        fluxGraph.removeVertex(this);
     }
 
     @Override
@@ -152,15 +169,15 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
             return getInEdges();
         }
         Collection<List<Object>> inEdges = Peer.q("[:find ?edge " +
-                                                   ":in $ ?vertex [?label ...] " +
-                                                   ":where [?edge :graph.edge/inVertex ?vertex] " +
-                                                          "[?edge :graph.edge/label ?label ] ]", getDatabase(), id, labels);
-        return new FluxIterable(inEdges, fluxGraph, database, Edge.class);
+                ":in $ ?vertex [?label ...] " +
+                ":where [?edge :graph.edge/inVertex ?vertex] " +
+                "[?edge :graph.edge/label ?label ] ]", getDatabase(), id, labels);
+        return new FluxIterable<Edge>(inEdges, fluxGraph, database, Edge.class);
     }
 
     private Iterable<Edge> getInEdges() {
         Iterable<Datom> inEdges = getDatabase().datoms(Database.AVET, fluxGraph.GRAPH_EDGE_IN_VERTEX, getId());
-        return new FluxIterable(inEdges, fluxGraph, database, Edge.class);
+        return new FluxIterable<Edge>(inEdges, fluxGraph, database, Edge.class);
     }
 
     private Iterable<Edge> getOutEdges(final String... labels) {
@@ -168,10 +185,10 @@ public class FluxVertex extends FluxElement implements TimeAwareVertex {
             return getOutEdges();
         }
         Collection<List<Object>> outEdges = Peer.q("[:find ?edge " +
-                                                    ":in $ ?vertex [?label ...] " +
-                                                    ":where [?edge :graph.edge/outVertex ?vertex] " +
-                                                           "[?edge :graph.edge/label ?label ] ]", getDatabase(), id, labels);
-        return new FluxIterable(outEdges, fluxGraph, database, Edge.class);
+                ":in $ ?vertex [?label ...] " +
+                ":where [?edge :graph.edge/outVertex ?vertex] " +
+                "[?edge :graph.edge/label ?label ] ]", getDatabase(), id, labels);
+        return new FluxIterable<Edge>(outEdges, fluxGraph, database, Edge.class);
     }
 
     private Iterable<Edge> getOutEdges() {

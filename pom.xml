@@ -12,10 +12,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <blueprints.version>2.1.0</blueprints.version>
-        <rexster.version>2.1.0</rexster.version>
-        <datomic-free.version>0.8.3538</datomic-free.version>
-        <joda-time.version>2.1</joda-time.version>
+        <blueprints.version>2.4.0</blueprints.version>
+        <rexster.version>2.4.0</rexster.version>
+        <datomic-free.version>0.8.4260</datomic-free.version>
+        <joda-time.version>2.3</joda-time.version>
     </properties>
 
     <scm>
@@ -33,6 +33,11 @@
             <name>Davy Suvee</name>
             <email>info@datablend.be/</email>
             <url>http://www.datablend.be</url>
+        </contributor>
+        <contributor>
+            <name>Jeremiah Hall</name>
+            <email>jeremiah.hall@gmail.com</email>
+            <url>http://www.jeremiahrhall.com</url>
         </contributor>
     </contributors>
 

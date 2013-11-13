@@ -62,9 +62,9 @@ public abstract class FluxElement implements TimeAwareElement {
         }
         Set<String> finalproperties = new HashSet<String>();
         Set properties = getDatabase().entity(id).keySet();
-        Iterator<Keyword> propertiesit = properties.iterator();
+        Iterator<String> propertiesit = properties.iterator();
         while (propertiesit.hasNext()) {
-            Keyword property = propertiesit.next();
+            String property = propertiesit.next();
             if (!FluxUtil.isReservedKey(property.toString())) {
                 finalproperties.add(FluxUtil.getPropertyName(property));
             }
@@ -79,10 +79,10 @@ public abstract class FluxElement implements TimeAwareElement {
         }
         if (!FluxUtil.isReservedKey(key)) {
             Set properties = getDatabase().entity(id).keySet();
-            Iterator<Keyword> propertiesit = properties.iterator();
+            Iterator<String> propertiesit = properties.iterator();
             // We need to iterate, as we don't know the exact type (although we ensured that only one attribute will have that name)
             while (propertiesit.hasNext()) {
-                Keyword property = propertiesit.next();
+                String property = propertiesit.next();
                 String propertyname = FluxUtil.getPropertyName(property);
                 if (key.equals(propertyname)) {
                     return getDatabase().entity(id).get(property);
@@ -104,7 +104,7 @@ public abstract class FluxElement implements TimeAwareElement {
         if (key.equals(StringFactory.LABEL))
             throw new IllegalArgumentException("Property key is reserved for all nodes and edges: " + StringFactory.LABEL);
         if (key.equals(StringFactory.EMPTY_STRING))
-            throw ExceptionFactory.elementKeyCanNotBeEmpty();
+            throw ExceptionFactory.propertyKeyCanNotBeEmpty();
         // A user-defined property
         if (!FluxUtil.isReservedKey(key)) {
             // If the property does not exist yet, create the attribute if required and create the appropriate transaction
